@@ -512,11 +512,13 @@ export class SongEditor {
 	private readonly _drumsetSpectrumEditors: SpectrumEditor[] = [];
 	private readonly _drumsetEnvelopeSelects: HTMLSelectElement[] = [];
 	private _layoutOption: HTMLOptionElement;
+	private _debouncedWhenResized: () => void;
 	
 	constructor(beepboxEditorContainer: HTMLElement) {
 		this.doc.notifier.watch(this.whenUpdated);
 		
-		window.addEventListener("resize", debounce(this._whenResized, 50));
+		this._debouncedWhenResized = debounce(this._whenResized, 50);
+		window.addEventListener("resize", this._debouncedWhenResized);
 		window.requestAnimationFrame(this.updatePlayButton);
 		
 		if (!("share" in navigator)) {
