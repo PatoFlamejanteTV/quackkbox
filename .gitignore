@@ -14,3 +14,4 @@
 /website/competition/**/beepbox*.js
 /website/competition/**/beepbox*.js.map
 /website/beepbox_offline.html
+server.log
