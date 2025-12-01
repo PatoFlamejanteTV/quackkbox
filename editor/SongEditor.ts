@@ -1,5 +1,6 @@
 // Copyright (c) John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
+import {debounce} from "./utils.js";
 import {InstrumentType, EffectType, Config, getPulseWidthRatio, effectsIncludeTransition, effectsIncludeChord, effectsIncludePitchShift, effectsIncludeDetune, effectsIncludeVibrato, effectsIncludeNoteFilter, effectsIncludeDistortion, effectsIncludeBitcrusher, effectsIncludePanning, effectsIncludeChorus, effectsIncludeEcho, effectsIncludeReverb} from "../synth/SynthConfig.js";
 import {Preset, PresetCategory, EditorConfig, isMobile, isOnMac, ctrlSymbol, prettyNumber} from "./EditorConfig.js";
 import {ColorConfig, ChannelColors} from "./ColorConfig.js";
@@ -510,17 +511,20 @@ export class SongEditor {
 	private readonly _operatorFrequencySelects: HTMLSelectElement[] = []
 	private readonly _drumsetSpectrumEditors: SpectrumEditor[] = [];
 	private readonly _drumsetEnvelopeSelects: HTMLSelectElement[] = [];
+	private _layoutOption: HTMLOptionElement;
 	
 	constructor(beepboxEditorContainer: HTMLElement) {
 		this.doc.notifier.watch(this.whenUpdated);
 		
-		window.addEventListener("resize", this._whenResized);
+		window.addEventListener("resize", debounce(this._whenResized, 50));
 		window.requestAnimationFrame(this.updatePlayButton);
 		
 		if (!("share" in navigator)) {
 			this._fileMenu.removeChild(this._fileMenu.querySelector("[value='shareUrl']")!);
 		}
 		
+		this._layoutOption = <HTMLOptionElement> this._optionsMenu.querySelector("[value=layout]");
+
 		this._scaleSelect.appendChild(optgroup({label: "Edit"},
 			option({value: "forceScale"}, "Snap Notes To Scale"),
 		));
@@ -698,13 +702,12 @@ export class SongEditor {
 	}
 	
 	private _updateLayoutOption(): void {
-		const layoutOption: HTMLOptionElement = <HTMLOptionElement> this._optionsMenu.querySelector("[value=layout]");
 		if (window.screen.availWidth < 710 || window.screen.availHeight < 710) {
-			layoutOption.disabled = true;
-			layoutOption.setAttribute("hidden", "");
+			this._layoutOption.disabled = true;
+			this._layoutOption.setAttribute("hidden", "");
 		} else {
-			layoutOption.disabled = false;
-			layoutOption.removeAttribute("hidden");
+			this._layoutOption.disabled = false;
+			this._layoutOption.removeAttribute("hidden");
 		}
 	}
 	
